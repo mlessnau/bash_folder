@@ -12,8 +12,6 @@ alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
 alias cd+='pushd &> /dev/null'
 alias cd-='popd &> /dev/null'
-alias cd--='popd -n +0 &> /dev/null'
-alias cd?='dirs -p'
 
 # grep
 alias grep='grep --color=auto'
