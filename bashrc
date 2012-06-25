@@ -38,7 +38,8 @@ if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
   . /etc/bash_completion
 fi
 
-export SHELL="/bin/bash"
+export EDITOR=vim
+export SHELL=/bin/bash
 
 # CLI look
 source ~/.bash/bin/git-completion.bash
