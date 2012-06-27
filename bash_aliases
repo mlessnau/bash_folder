@@ -2,6 +2,8 @@
 if [ `uname` != "Darwin" ]; then
   alias ls='ls --color=auto'
   alias l='ls --group-directories-first -a'
+else
+  alias l='ls -la'
 fi
 alias ll='ls -alF'
 alias la='ls -A'
