@@ -7,13 +7,12 @@ fi
 
 # bash history
 HISTCONTROL=ignoredups:ignorespace
-shopt -s histappend
 HISTSIZE=1000
 HISTFILESIZE=2000
+shopt -s histappend
 
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
+shopt -s checkwinsize   # check window size after each command
+shopt -s dotglob        # make asterisk (*) match hidden files too
 
 # bash colors
 export TERM=screen-256color # works best with vim/tmux in 256 colors mode
