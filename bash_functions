@@ -1,5 +1,6 @@
 # history file where directories are stored that were accessed via "j" and "h"
 J_HISTORY_FILE=$HOME/.j_history
+J_HISTORY_FILE_TMP=$HOME/.j_history.tmp
 # history file length (duplicates excluded)
 J_HISTORY_LENTH=1000
 # max. number of suggestions the "h" gives
@@ -24,7 +25,8 @@ j() {
     pushd "${D[0]}" &> /dev/null
     if [ $? -eq 0 ]; then
       if [ -f $J_HISTORY_FILE ]; then
-        { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > /tmp/.j_history && awk '!x[$0]++' /tmp/.j_history > $J_HISTORY_FILE
+        { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
+        rm $J_HISTORY_FILE_TMP
       else
         pwd > $J_HISTORY_FILE
       fi
@@ -48,7 +50,8 @@ j() {
       pushd "${D[$((C - 1))]}" &> /dev/null
       if [ $? -eq 0 ]; then
         if [ -f $J_HISTORY_FILE ]; then
-          { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > /tmp/.j_history && awk '!x[$0]++' /tmp/.j_history > $J_HISTORY_FILE
+          { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
+          rm $J_HISTORY_FILE_TMP
         else
           pwd > $J_HISTORY_FILE
         fi
@@ -107,7 +110,8 @@ h() {
           fi
           pushd "${D[$((C - 1))]}" &> /dev/null
           if [ $? -eq 0 ]; then
-            { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > /tmp/.j_history && awk '!x[$0]++' /tmp/.j_history > $J_HISTORY_FILE
+            { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
+            rm $J_HISTORY_FILE_TMP
             IFS=$OIFS
             return 0;
           fi
@@ -118,7 +122,8 @@ h() {
       D=`egrep -m 1 --mmap "$@[^\/]*$" $J_HISTORY_FILE`
       pushd "$D" &> /dev/null
       if [ $? -eq 0 ]; then
-        { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > /tmp/.j_history && awk '!x[$0]++' /tmp/.j_history > $J_HISTORY_FILE
+        { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
+        rm $J_HISTORY_FILE_TMP
         return 0
       fi
     fi
