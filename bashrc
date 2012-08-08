@@ -7,8 +7,8 @@ fi
 
 # bash history
 HISTCONTROL=ignoredups:ignorespace
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=100
+HISTFILESIZE=200
 shopt -s histappend
 
 shopt -s checkwinsize   # check window size after each command
