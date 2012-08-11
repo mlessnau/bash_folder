@@ -71,6 +71,11 @@ option_parser = OptionParser.new do |o|
   end
 end
 
+if ARGV.empty?
+  puts option_parser
+  exit 1
+end
+
 begin
   option_parser.parse! ARGV
 rescue OptionParser::InvalidOption => e
