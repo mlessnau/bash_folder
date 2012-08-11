@@ -43,7 +43,6 @@ alias kill_guard="ps | egrep 'ruby.*guard' | grep -v egrep | sed 's/^\([0-9]*\).
 alias g='git'
 
 # miscellaneous
-alias f='find . -name'
 alias q="exit"
 alias cls="clear"
 
