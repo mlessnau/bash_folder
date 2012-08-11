@@ -1,0 +1,120 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+# --- config
+
+extension_groups = {
+  :c          => 'c,cc,cpp,h,hpp',
+  :css        => 'css,scss,less',
+  :html       => 'htm,html',
+  :javascript => 'js,htm,html',
+  :java       => 'java',
+  :php        => 'php,php3,phtml',
+  :ruby       => 'rb,erb',
+  :sh         => 'sh,csh,ksh,zsh,bash',
+  :vim        => 'vim'
+}
+
+# --- extract command-line arguments
+
+options = {:target_directory => '.'}
+
+option_parser = OptionParser.new do |o|
+  o.banner = 'Usage: f [options]'
+
+  o.on('-e', '--extension EXTENSION', 'File extensions to search for (use comma to separate multiple extensions)') do |extension|
+    options[:extension] = extension
+  end
+
+  extension_groups.each do |key, value|
+    o.on("--#{key}", "Search for #{key} files (#{value})") do
+      if options[:extension]
+        options[:extension] += ",#{value}"
+      else
+        options[:extension] = value
+      end
+    end
+  end
+
+  o.on('-n', '--name PATTERN', 'File name pattern') do |pattern|
+    options[:name] = pattern
+  end
+
+  o.on('-N', '--exclude-name PATTERN', 'File name pattern to exclude') do |pattern|
+    options[:exclude_name] = pattern
+  end
+
+  o.on('-i', '--ignore-case', 'Ignore case distinctions in file search and grep') do
+    options[:ignore_case] = true
+  end
+
+  o.on('-g', '--grep PATTERN', 'Grep matching files using the pattern') do |pattern|
+    options[:grep] = pattern
+  end
+
+  o.on('-l', '--line-number', 'Prefix each matching line of a file with the line number (use in conjunction with -g)') do
+    options[:line_number] = true
+  end
+
+  o.on('-F', '--no-filename', 'Remove file name for each matching line of a file (use in conjunction with -g)') do
+    options[:no_filename] = true
+  end
+
+  o.on('-f', '--only-filename', 'Show only file name (use in conjunction with -g)') do
+    options[:only_filename] = true
+  end
+
+  o.on('-h', '--help', 'Show help') do
+    puts o
+    exit 0
+  end
+end
+
+begin
+  option_parser.parse! ARGV
+rescue OptionParser::InvalidOption => e
+  puts e
+  puts option_parser
+  exit 1
+end
+
+options[:target_directory] = ARGV[0] if ARGV[0]
+
+# --- build command
+
+command = "find #{options[:target_directory]}"
+
+if options[:extension]
+  if options[:ignore_case]
+    command += " -iname '*.#{options[:extension].split(',').join("' -o -iname '*.")}'"
+  else
+    command += " -name '*.#{options[:extension].split(',').join("' -o -name '*.")}'"
+  end
+end
+
+if options[:name]
+  grep_options = 'E'
+  grep_options += 'i' if options[:ignore_case]
+
+  command += " | grep -#{grep_options} '#{options[:name]}' --color=auto"
+end
+
+if options[:exclude_name]
+  grep_options = 'Ev'
+  grep_options += 'i' if options[:ignore_case]
+
+  command += " | grep -#{grep_options} '#{options[:exclude_name]}'"
+end
+
+if options[:grep]
+  grep_options = 'E'
+  grep_options += 'h' if options[:no_filename]
+  grep_options += 'i' if options[:ignore_case]
+  grep_options += 'n' if options[:line_number]
+  grep_options += 'l' if options[:only_filename]
+
+  command += " | xargs grep -#{grep_options} '#{options[:grep]}' --color=auto"
+end
+
+system(command)
