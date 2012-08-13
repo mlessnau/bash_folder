@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # creates the directory structure using "mkdir -p" and immediately
 # enters it using "pushd"
 md() {
