@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # history file where directories are stored that were accessed via "j" and "h"
 J_HISTORY_FILE=$HOME/.j_history
 J_HISTORY_FILE_TMP=$HOME/.j_history.tmp
@@ -20,7 +18,7 @@ JH_SUGGESTIONS_MAX=10
 #   $ j .. a    -> cd ../*a*/
 #
 j() {
-  D=(`echo "$@/" | tr -s " " "/" | tr -s "/" "/" | sed -e "s/\//*\/*/g" -e "s/\/\*$/\//" -e "s/^\*\//\//" -e "s/^\([^\/]\)/*\1/" -e "s/\*\(\.\.*\)\*/\1/g" -e "s/\*~\*/~/g" -e "s/\([_\-\+a-z0-9]\)\([_\-\+a-z0-9]\)/\1*\2/g" -e "s/\([_\-\+a-z0-9]\)\([_\-\+a-z0-9]\)/\1*\2/g"`)
+  D=(`echo "$@/" | tr -s " " "/" | tr -s "/" "/" | sed -e "s/\//*\/*/g" -e "s/\/\*$/\//" -e "s/^\*\//\//" -e "s/^\([^\/]\)/*\1/" -e "s/\*\(\.\.*\)\*/\1/g" -e "s/\*~\*/~/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g"`)
   DC=${#D[@]}
   if [ $DC -eq 1 ]; then
     pushd "${D[0]}" &> /dev/null
