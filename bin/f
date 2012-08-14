@@ -6,14 +6,17 @@ require 'optparse'
 
 extension_groups = {
   :c          => 'c,cc,cpp,h,hpp',
-  :css        => 'css,scss,less',
+  :css        => 'css,less,scss',
   :html       => 'htm,html',
-  :javascript => 'js,htm,html',
-  :java       => 'java',
+  :image      => 'bmp,gif,jpg,jpeg,png,xpm',
+  :java       => 'java,jsp',
+  :javascript => 'coffee,ejs,htm,html,js',
   :php        => 'php,php3,phtml',
-  :ruby       => 'rb,erb',
-  :sh         => 'sh,csh,ksh,zsh,bash',
-  :vim        => 'vim'
+  :ruby       => 'erb,rb,ui',
+  :sh         => 'csh,bash,ksh,sh,zsh',
+  :vim        => 'vim',
+  :yaml       => 'yml',
+  :xml        => 'dtd,wsdl,xml,xsl,xslt'
 }
 
 # --- extract command-line arguments
@@ -21,7 +24,7 @@ extension_groups = {
 options = {:target_directory => '.'}
 
 option_parser = OptionParser.new do |o|
-  o.banner = 'Usage: f [options]'
+  o.banner = "Usage: #{File.basename(__FILE__, '.rb')} [path] [options]\n\n"
 
   o.on('-e', '--extension EXTENSION', 'File extensions to search for (use comma to separate multiple extensions)') do |extension|
     options[:extension] = extension
@@ -91,24 +94,19 @@ options[:target_directory] = ARGV[0] if ARGV[0]
 command = "find #{options[:target_directory]}"
 
 if options[:extension]
-  if options[:ignore_case]
-    command += " -iname '*.#{options[:extension].split(',').join("' -o -iname '*.")}'"
-  else
-    command += " -name '*.#{options[:extension].split(',').join("' -o -name '*.")}'"
-  end
+  find_option = options[:ignore_case] ? 'iname' : 'name'
+  command += " -#{find_option} '*.#{options[:extension].split(',').join("' -o -#{find_option} '*.")}'"
 end
 
 if options[:name]
   grep_options = 'E'
   grep_options += 'i' if options[:ignore_case]
-
   command += " | grep -#{grep_options} '#{options[:name]}' --color=auto"
 end
 
 if options[:exclude_name]
   grep_options = 'Ev'
   grep_options += 'i' if options[:ignore_case]
-
   command += " | grep -#{grep_options} '#{options[:exclude_name]}'"
 end
 
@@ -118,7 +116,6 @@ if options[:grep]
   grep_options += 'i' if options[:ignore_case]
   grep_options += 'n' if options[:line_number]
   grep_options += 'l' if options[:only_filename]
-
   command += " | xargs grep -#{grep_options} '#{options[:grep]}' --color=auto"
 end
 
