@@ -120,7 +120,7 @@ h() {
       fi
       IFS=$OIFS
     else
-      PATTERN=`echo "$@" | sed -e "s/\s\s*/[^\/]*\/[^\/]*/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g"`
+      PATTERN=`echo "$@" | sed -e "s/\s\s*/[^\/]*\/[^\/]*/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1.*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1.*\2/g"`
       D=`egrep -m 1 --mmap "$PATTERN[^\/]*$" $J_HISTORY_FILE`
       pushd "$D" &> /dev/null
       if [ $? -eq 0 ]; then
