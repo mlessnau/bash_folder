@@ -90,7 +90,7 @@ h() {
       D=(`head -$JH_SUGGESTIONS_MAX $J_HISTORY_FILE`)
       DC=${#D[@]}
       if [ $DC -gt 0 ]; then
-        echo "Most recent jumped directories"
+        echo "Most recently jumped directories"
         I=1
         I_FILTER=$((DC + 1))
         for DIR in ${D[@]}; do
@@ -120,7 +120,8 @@ h() {
       fi
       IFS=$OIFS
     else
-      D=`egrep -m 1 --mmap "$@[^\/]*$" $J_HISTORY_FILE`
+      PATTERN=`echo "$@" | sed -e "s/\s\s*/[^\/]*\/[^\/]*/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g"`
+      D=`egrep -m 1 --mmap "$PATTERN[^\/]*$" $J_HISTORY_FILE`
       pushd "$D" &> /dev/null
       if [ $? -eq 0 ]; then
         { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
