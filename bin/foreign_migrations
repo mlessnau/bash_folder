@@ -1,0 +1,188 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+options = {}
+
+option_parser = OptionParser.new do |o|
+  o.banner = "Usage: #{File.basename(__FILE__, '.rb')} [path] [options]\n\n"
+
+  o.on('-l', '--list', 'List currently installed foreign migrations') do |list|
+    options[:list] = list
+  end
+
+  o.on('-L', '--list-engine-wise', 'List currently installed foreign migrations grouped by engines') do |list_engine_wise|
+    options[:list_engine_wise] = list_engine_wise
+  end
+
+  o.on('-c', '--check-redate', 'Check which currently installed migrations are redateable') do |check_redate|
+    options[:check_redate] = check_redate
+  end
+
+  o.on('-r', '--redate', 'Redate currently installed migrations') do |redate|
+    options[:redate] = redate
+  end
+
+  o.on('-i', '--redate-interactive', 'Interactive redate currently installed (prompts for each renaming)') do |redate_interactive|
+    options[:redate_interactive] = redate_interactive
+  end
+
+  o.on('-t', '--list-installable', 'List all installable foreign migrations') do |list_installable|
+    options[:list_installable] = list_installable
+  end
+
+  o.on('-h', '--help', 'Show help') do
+    puts o
+    exit 0
+  end
+end
+
+# -----------------------------------------------------------------------------
+
+class ForeignMigrations
+  attr_reader :migration_dirs, :migration_files_by_dir
+
+  def initialize(dirs)
+    dirs = ['.'] if 0 == dirs.size
+    @migration_dirs = find_migration_dirs(dirs)
+    @migration_files_by_dir = find_migration_files_by_dir(@migration_dirs)
+  end
+
+  def list
+    @migration_files_by_dir.each do |dir, files|
+      puts "==== #{dir} (total: #{files.size})"
+      files.each do |file|
+        puts "    #{file.gsub(/#{dir}\/?/, '')}"
+      end
+      puts ''
+    end
+  end
+
+  def list_engine_wise
+    @migration_files_by_dir.each do |dir, files|
+      a = {}
+      files.each do |file|
+        basename = file.gsub(/#{dir}\/?/, '')
+          engine_name = basename.match(/^.*\.([^\.]*)\.rb$/)[1]
+        unless a[engine_name]
+          a[engine_name] = []
+        end
+        a[engine_name] << file
+      end
+      puts "==== #{dir} (total: #{files.size})"
+      a.keys.sort.each do |engine_name|
+        puts "    #{engine_name} (total: #{a[engine_name].size})"
+        a[engine_name].each do |file|
+          puts "        #{file.gsub(/#{dir}\/?/, '')}"
+        end
+      end
+      puts ''
+    end
+  end
+
+  def redate(list_only = false, interactive = false)
+    @migration_files_by_dir.each do |dir, files|
+      puts "==== #{dir}"
+      files.each do |file|
+        timestamp = File.basename(file).match(/^(\d+)(.*)$/)[1]
+        original_timestamp = `grep -E -m 1 'originally [0-9]+' #{file}`.match(/\(originally (\d+)\)/)[1]
+        unless timestamp == original_timestamp
+          if list_only
+            puts "    #{File.basename(file)}"
+            puts "        #{timestamp.gsub(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '\1-\2-\3 \4:\5:\6')} (current)"
+            puts "        #{original_timestamp.gsub(/(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '\1-\2-\3 \4:\5:\6')} (original)"
+          else
+            new_file = file.gsub(timestamp, original_timestamp)
+            puts "    #{File.basename(file)}"
+            puts " -> #{File.basename(new_file)}"
+
+            skip = true
+            begin
+              print "[Y]es? [n]o? [q]uit? "
+              choice = (STDIN.gets).chomp.strip.downcase
+              case choice
+              when '', 'y' then
+                skip = false
+                break
+              when 'n' then
+                skip = true
+                puts 'Skipped'
+                break
+              when 'q' then
+                puts 'Quit'
+                exit 0
+              else
+                puts "invalid choice"
+              end
+            end while interactive
+
+            system("mv #{file} #{new_file}") unless skip
+          end
+        end
+      end
+    end
+  end
+
+  def list_installable
+    @migration_dirs.each do |dir|
+      rakefile_dir = "#{dir}/../.."
+
+      if FileTest.exists?("#{rakefile_dir}/Rakefile")
+        working_dir = `pwd`
+        tasks = `cd #{rakefile_dir}; bundle exec rake -T | grep -E 'install:migrations' | sed -e 's/^rake *//g' -e 's/ *#.*$//g'; cd #{working_dir}`.split("\n")
+        puts tasks
+        exit
+      end
+    end
+  end
+
+  private
+
+  def find_migration_dirs(dirs)
+    migration_dirs = dirs.map do |dir|
+      `find #{dir} -name 'migrate' | grep -E '\/db\/migrate$'`.split("\n")
+    end
+    migration_dirs.sort!.flatten!.uniq!
+    migration_dirs
+  end
+
+  def find_migration_files_by_dir(migration_dirs)
+    migration_files_by_dir = {}
+    migration_dirs.each do |dir|
+      files = `find #{dir} -name '*.rb' | grep -E '[0-9]+_[^\\.]+\\.[^\\.]+\\.rb$'`.split("\n")
+      migration_files_by_dir["#{dir}"] = files if 0 < files.size
+    end
+    migration_files_by_dir
+  end
+end
+
+# -----------------------------------------------------------------------------
+
+begin
+  option_parser.parse! ARGV
+rescue OptionParser::InvalidOption => e
+  puts e
+  puts option_parser
+  exit 1
+end
+
+if options.empty?
+  puts option_parser
+  exit 1
+end
+
+foreign_migrations = ForeignMigrations.new(ARGV)
+
+if options[:list_engine_wise]
+  foreign_migrations.list_engine_wise
+elsif options[:list]
+  foreign_migrations.list
+elsif options[:list_installable]
+  foreign_migrations.list_installable
+elsif options[:check_redate]
+  foreign_migrations.redate(true)
+elsif options[:redate_interactive]
+  foreign_migrations.redate(false, true)
+elsif options[:redate]
+  foreign_migrations.redate(false)
+end
