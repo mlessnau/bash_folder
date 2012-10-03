@@ -28,5 +28,5 @@ end
 puts ' DONE'
 
 print 'Creating ctags database ...'
-`ctags -R . &> /dev/null`
+`ctags -R --exclude=.git --exclude=log . &> /dev/null`
 print ' DONE'
