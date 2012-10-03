@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+CTAGS_GEMS_DIR = 'ctags_gems'
+
+gems = {}
+
+print 'Retrieving used gems ...'
+gem_names = `bundle list | grep '*' | tr -s ' ' ' ' | cut -d ' ' -f 3`.split("\n")
+puts " DONE (#{gem_names.size} gems)"
+
+print 'Retrieving gem locations '
+gem_names.each do |gem_name|
+  print '.'
+  gems[gem_name] = `bundle show #{gem_name}`.gsub(/^\s*|(\n|\s)+$/, '')
+end
+puts ' DONE'
+
+print 'Cleaning up gem symlinks ...'
+`rm -rf #{CTAGS_GEMS_DIR}`
+puts ' DONE'
+
+print 'Creating gem symlinks '
+`mkdir #{CTAGS_GEMS_DIR}`
+gems.each do |name, location|
+  print '.'
+  `ln -s #{location} #{CTAGS_GEMS_DIR}/#{name}`
+end
+puts ' DONE'
+
+print 'Creating ctags database ...'
+`ctags -R . &> /dev/null`
+print ' DONE'
