@@ -33,7 +33,7 @@ if options[:full]
   print 'Running bundle install ...'
   `bundle install`
   rbenv = `which rbenv`.gsub(/^\s+|\s+$|\n/, '')
-  `#{rbenv} rehash` if rbenv
+  `#{rbenv} rehash` if 0 < rbenv.length
   puts ' DONE'
 
   print 'Retrieving used gems ...'
