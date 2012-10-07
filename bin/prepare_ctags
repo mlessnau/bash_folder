@@ -9,8 +9,8 @@ options = {}
 option_parser = OptionParser.new do |o|
   o.banner = "Usage: #{File.basename(__FILE__, '.rb')} [options]\n\n"
 
-  o.on('-f', '--full', 'Runs bundle install and recreates gem symlinks') do
-    options[:full] = true
+  o.on('-f', '--ruby-full', 'Runs bundle install and recreates gem symlinks') do
+    options[:ruby_full] = true
   end
 
   o.on('-h', '--help', 'Show help') do
@@ -29,7 +29,7 @@ end
 
 gems = {}
 
-if options[:full]
+if options[:ruby_full]
   print 'Running bundle install ...'
   `bundle install`
   rbenv = `which rbenv`.gsub(/^\s+|\s+$|\n/, '')
@@ -60,7 +60,17 @@ if options[:full]
   puts ' DONE'
 end
 
-ruby_options = [
+ctags_options = [
+  '-R',
+  ['.git', '.svn', 'log', 'cache', 'tmp', '*.min.js'].map { |directory| "--exclude='#{directory}'" }.join(' '),
+  "--PHP-kinds='+cfd'",
+  "--langdef='coffee'",
+  "--langmap='coffee:.coffee'",
+  "--langdef='js'",
+  "--langmap='js:.js'"
+].join(' ')
+
+ctags_ruby_options = [
   '/(^|[:;])[ \\t]*([A-Z][[:alnum:]_]+) *=/\\2/c,class,constant/',
   '/(^|;)[ \\t]*(has_many|belongs_to|has_one|has_and_belongs_to_many)\\(? *:([[:alnum:]_]+)/\\3/f,function,association/',
   '/(^|;)[ \\t]*(named_)?scope\\(? *:([[:alnum:]_]+)/\\3/f,function,named_scope/',
@@ -68,9 +78,36 @@ ruby_options = [
   '/(^|;)[ \\t]*event\\(? *:([[:alnum:]_]+)/\\2/f,function,aasm_event/',
   '/(^|;)[ \\t]*event\\(? *:([[:alnum:]_]+)/\\2!/f,function,aasm_event/',
   '/(^|;)[ \\t]*event\\(? *:([[:alnum:]_]+)/\\2?/f,function,aasm_event/'
-]
+].map { |option| "--regex-ruby='#{option}'" }.join(' ')
+
+ctags_php_options = [
+  '/abstract\\s+class\\s+([^ ]+)/\\1/c/',
+  '/interface\\s+([^ ]+)/\\1/c/',
+  '/(public\\s+|static\\s+|protected\\s+|private\\s+)\\$([^   =]+)/\\2/p/',
+  '/const\\s+([^  =]+)/\\1/d/',
+  '/final\\s+(public\\s+|static\\s+|abstract\\s+|protected\\s+|private\\s+)function\\s+\\&?\\s*([^ (]+)/\\2/f/'
+].map { |option| "--regex-PHP='#{option}'" }.join(' ')
+
+ctags_coffee_options = [
+  '/^[ \\t]*class[ \\t]+([A-Za-z.@]+)/\\1/,class/',
+  '/^[ \\t]*([A-Za-z.]+)[ \\t]*\\:.*(->|=>).*$/\\1/,method/',
+  '/^[ \\t]*(@[A-Za-z.]+)[ \\t]*\\:.*(->|=>).*$/\\1/,staticmethod/',
+  '/^[ \\t]*([A-Za-z.]+)[ \\t]*=.*(->|=>).*$/\\1/,function/',
+  '/^[ \\t]*([A-Z0-9_]+)[ \\t]*=.*$/\\1/,constant/'
+].map { |option| "--regex-coffee='#{option}'" }.join(' ')
+
+ctags_js_options = [
+  '/([A-Za-z0-9._$]+)[ \\t]*[:=][ \\t]*\{/\\1/o,object/',
+  '/([A-Za-z0-9._$()]+)[ \\t]*[:=][ \\t]*function[ \\t]*\(/\\1/f,function/',
+  '/function[ \\t]+([A-Za-z0-9._$]+)[ \\t]*([^)])/\\1/f,function/',
+  '/([A-Za-z0-9._$]+)[ \\t]*[:=][ \\t]*\[/\\1/a,array/',
+  '/([^= ]+)[ \\t]*=[ \\t]*[^"]\'[^\']*/\\1/s,string/',
+  '/([^= ]+)[ \\t]*=[ \\t]*[^\']"[^"]*/\\1/s,string/',
+  '/([^= ]+)[ \\t]*=[ \\t]*[\\-]*[0-9]+/\\1/n,number/',
+  '/([^= ]+)[ \\t]*=[ \\t]*(true|false)/\\1/b,boolean/'
+].map { |option| "--regex-js='#{option}'" }.join(' ')
 
 print 'Creating ctags database ...'
 `rm -f tags`
-`ctags -R --exclude=.git --exclude=log --regex-ruby='#{ruby_options.join("' --regex-ruby='")}' . &> /dev/null`
+`ctags #{ctags_options} #{ctags_ruby_options} #{ctags_php_options} #{ctags_coffee_options} . &> /dev/null`
 puts ' DONE'
