@@ -60,6 +60,17 @@ if options[:full]
   puts ' DONE'
 end
 
+ruby_options = [
+  '/(^|[:;])[ \\t]*([A-Z][[:alnum:]_]+) *=/\\2/c,class,constant/',
+  '/(^|;)[ \\t]*(has_many|belongs_to|has_one|has_and_belongs_to_many)\\(? *:([[:alnum:]_]+)/\\3/f,function,association/',
+  '/(^|;)[ \\t]*(named_)?scope\\(? *:([[:alnum:]_]+)/\\3/f,function,named_scope/',
+  '/(^|;)[ \\t]*expose\\(? *:([[:alnum:]_]+)/\\2/f,function,exposure/',
+  '/(^|;)[ \\t]*event\\(? *:([[:alnum:]_]+)/\\2/f,function,aasm_event/',
+  '/(^|;)[ \\t]*event\\(? *:([[:alnum:]_]+)/\\2!/f,function,aasm_event/',
+  '/(^|;)[ \\t]*event\\(? *:([[:alnum:]_]+)/\\2?/f,function,aasm_event/'
+]
+
 print 'Creating ctags database ...'
-`ctags -R --exclude=.git --exclude=log . &> /dev/null`
+`rm -f tags`
+`ctags -R --exclude=.git --exclude=log --regex-ruby='#{ruby_options.join("' --regex-ruby='")}' . &> /dev/null`
 puts ' DONE'
