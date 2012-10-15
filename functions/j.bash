@@ -58,8 +58,9 @@ j() {
       fi
     fi
   fi
-  echo "Unable to expand path"
-  return 1
+  #echo "Unable to expand path"
+  #return 1
+  h $@
 }
 
 alias J="j /"
