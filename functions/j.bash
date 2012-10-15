@@ -18,35 +18,11 @@ JH_SUGGESTIONS_MAX=10
 #   $ j .. a    -> cd ../*a*/
 #
 j() {
-  D=(`echo "$@/" | tr -s " " "/" | tr -s "/" "/" | sed -e "s/\//*\/*/g" -e "s/\/\*$/\//" -e "s/^\*\//\//" -e "s/^\([^\/]\)/*\1/" -e "s/\*\(\.\.*\)\*/\1/g" -e "s/\*~\*/~/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g"`)
-  DC=${#D[@]}
-  if [ $DC -eq 1 ]; then
-    pushd "${D[0]}" &> /dev/null
-    if [ $? -eq 0 ]; then
-      if [ -f $J_HISTORY_FILE ]; then
-        { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
-        rm $J_HISTORY_FILE_TMP
-      else
-        pwd > $J_HISTORY_FILE
-      fi
-      return 0;
-    fi
-  elif [ $DC -gt 1 ]; then
-    echo "Have $DC possible expansion(s)"
-    I=1
-    OIFS=$IFS
-    IFS=''
-    for DIR in ${D[@]}; do
-      echo "  $((I++)). $DIR"
-    done
-    IFS=$OIFS
-    echo -n "Choice [1]: "
-    read C
-    if [ "$C" == "" ]; then
-      C=1
-    fi
-    if [ $C -gt 0 ] && [ $C -le $DC ]; then
-      pushd "${D[$((C - 1))]}" &> /dev/null
+  if [ $# -gt 0 ]; then
+    D=(`echo "$@/" | tr -s " " "/" | tr -s "/" "/" | sed -e "s/\//*\/*/g" -e "s/\/\*$/\//" -e "s/^\*\//\//" -e "s/^\([^\/]\)/*\1/" -e "s/\*\(\.\.*\)\*/\1/g" -e "s/\*~\*/~/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1*\2/g"`)
+    DC=${#D[@]}
+    if [ $DC -eq 1 ]; then
+      pushd "${D[0]}" &> /dev/null
       if [ $? -eq 0 ]; then
         if [ -f $J_HISTORY_FILE ]; then
           { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
@@ -56,10 +32,34 @@ j() {
         fi
         return 0;
       fi
+    elif [ $DC -gt 1 ]; then
+      echo "Have $DC possible expansion(s)"
+      I=1
+      OIFS=$IFS
+      IFS=''
+      for DIR in ${D[@]}; do
+        echo "  $((I++)). $DIR"
+      done
+      IFS=$OIFS
+      echo -n "Choice [1]: "
+      read C
+      if [ "$C" == "" ]; then
+        C=1
+      fi
+      if [ $C -gt 0 ] && [ $C -le $DC ]; then
+        pushd "${D[$((C - 1))]}" &> /dev/null
+        if [ $? -eq 0 ]; then
+          if [ -f $J_HISTORY_FILE ]; then
+            { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
+            rm $J_HISTORY_FILE_TMP
+          else
+            pwd > $J_HISTORY_FILE
+          fi
+          return 0;
+        fi
+      fi
     fi
   fi
-  #echo "Unable to expand path"
-  #return 1
   h $@
 }
 
