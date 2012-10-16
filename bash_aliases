@@ -28,8 +28,10 @@ alias be='bundle exec'
 alias rake='bundle exec rake'
 alias guard='bundle exec guard'
 alias rspec='bundle exec rspec'
-alias db='bundle exec rake db:drop db:create db:migrate db:seed RAILS_ENV=test'
+alias db='RAILS_ENV=test bundle exec rake db:drop db:create db:migrate db:seed'
+alias db_safe='RAILS_ENV=test bundle exec rake db:drop db:create db:migrate && RAILS_ENV=test bundle exec rake db:seed'
 alias db!='bundle exec rake db:drop db:create db:migrate db:seed'
+alias db_safe!='bundle exec rake db:drop db:create db:migrate && bundle exec rake db:seed'
 alias c="rails c test"
 alias c!="rails c"
 alias s='rails s RAILS_ENV=test'
@@ -40,7 +42,9 @@ alias t..='bundle exec guard'
 alias kill_guard="ps | egrep 'ruby.*guard' | grep -v egrep | sed 's/^\([0-9]*\).*/\1/g' | xargs kill"
 
 # git
-alias g='git'
+alias modified?="git ls-files . --modified"
+alias deleted?="git ls-files . --deleted"
+alias untracked?="git ls-files . --exclude-standard --others"
 
 # miscellaneous
 alias q="exit"
