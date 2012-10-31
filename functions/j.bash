@@ -122,7 +122,8 @@ h() {
       IFS=$OIFS
     else
       PATTERN=`echo "$@" | sed -e "s/  */[^\/]*\/[^\/]*/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1[^\/]*\2/g" -e "s/\([_\-\+a-zA-Z0-9]\)\([_\-\+a-zA-Z0-9]\)/\1[^\/]*\2/g"`
-      D=`egrep -m 1 --mmap "[^\/]*$PATTERN[^\/]*$" $J_HISTORY_FILE`
+      #D=`egrep -m 1 --mmap "[^\/]*$PATTERN[^\/]*$" $J_HISTORY_FILE`
+      D=`egrep -m 1 "[^\/]*$PATTERN[^\/]*$" $J_HISTORY_FILE`
       pushd "$D" &> /dev/null
       if [ $? -eq 0 ]; then
         { pwd; head -$J_HISTORY_LENTH $J_HISTORY_FILE; } > $J_HISTORY_FILE_TMP && awk '!x[$0]++' $J_HISTORY_FILE_TMP > $J_HISTORY_FILE
@@ -134,4 +135,3 @@ h() {
   echo "Unable to lookup path"
   return 1
 }
-
