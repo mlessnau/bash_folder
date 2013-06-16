@@ -91,7 +91,7 @@ options[:target_directory] = ARGV[0] if ARGV[0]
 
 # --- build command
 
-command = "find #{options[:target_directory]}"
+command = "find #{options[:target_directory]} -type f"
 
 if options[:extension]
   find_option = options[:ignore_case] ? 'iname' : 'name'
