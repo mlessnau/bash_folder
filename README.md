@@ -1,4 +1,7 @@
 Install:
 
-1) Clone contents into ~/.bash
-2) Create symlink to bashrc: "ln -s ~/.bash/bashrc ~/.bashrc"
+  $ git clone https://github.com/mlessnau/bash_folder.git ~/.bash
+  
+  $ ln -s ~/.bash/bashrc ~/.bashrc
+
+You can maintain local ~/.bashrc.after files in order to customise things on a per mashine basis.
