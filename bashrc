@@ -44,7 +44,7 @@ export SHELL=/bin/bash
 source ~/.bash/bin/git/git-completion.bash
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWUNTRACKEDFILES=1
-export PS1="\[\e[1;30m\]\w\[\e[m \]\$($(cat ~/.bash/bin/git/git-ps1/git-ps1.sh))"
+export PS1="\[\e[1;30m\]\A \w\[\e[m \]\$($(cat ~/.bash/bin/git/git-ps1/git-ps1.sh))"
 
 PATH="$HOME/.bash/bin:$PATH"
 
