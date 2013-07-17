@@ -7,14 +7,7 @@ if [ "$BRANCH" == "" ]; then
   return
 fi
 
-echo "# git fetch origin"
-git fetch origin
-
-echo "# git fetch --tags"
-git fetch --tags
-
-echo "# git pull origin $BRANCH"
-git pull origin $BRANCH
+git-update
 
 echo "# git push origin $BRANCH"
 git push origin $BRANCH
