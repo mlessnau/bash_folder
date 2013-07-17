@@ -5,3 +5,6 @@ git fetch origin
 
 echo "# git fetch --tags"
 git fetch --tags
+
+echo "# git remote prune origin"
+git remote prune origin
