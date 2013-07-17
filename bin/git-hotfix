@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+SHOW_HELP=0
+SCRIPT_NAME=$0
+SCRIPT_NAME=${SCRIPT_NAME##*/}
+
+if [ $# -gt 0 ]; then
+  if [ "$1" == "start" ]; then
+    if [ $# -gt 1 ]; then
+      HOTFIX_BRANCH="hotfix-$2"
+
+      if [ `git status | grep "working directory clean" | wc -l` -eq 0 ]; then
+        echo "Your working directory ain't clean. Please commit/revert your changes first!"
+        exit 1
+      fi
+
+      echo "# git fetch origin"
+      git fetch origin
+
+      echo "# git fetch --tags"
+      git fetch --tags
+
+      echo "# git checkout release"
+      git checkout release
+
+      if [ $? -ne 0 ]; then
+        echo "Failed to checkout 'release' branch"
+        exit 1
+      fi
+
+      echo "# git pull origin release"
+      git pull origin release
+
+      echo "# git checkout -b $HOTFIX_BRANCH"
+      git checkout -b $HOTFIX_BRANCH
+    else
+      echo "Missing hotfix name!"
+      exit 1
+    fi
+  elif [ "$1" == "finish" ]; then
+    echo "Finishing hotfixes needs to be implemented"
+    exit 1
+  elif [ "$1" == "help" ]; then
+    SHOW_HELP=1
+  else
+    SHOW_HELP=1
+  fi
+else
+  SHOW_HELP=1
+fi
+
+if [ $SHOW_HELP -eq 1 ]; then
+  echo "Usage:"
+  echo "  $SCRIPT_NAME help          # shows this help"
+  echo "  $SCRIPT_NAME start [name]  # starts the hotfix 'name'"
+fi

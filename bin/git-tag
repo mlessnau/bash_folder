@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+echo "# git fetch --tags"
+git fetch --tags
+
+echo "# git tag $1"
+git tag $1
+
+echo "# git push --tags"
+git push --tags
