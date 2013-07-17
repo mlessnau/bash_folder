@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+BRANCH=`git branch | grep "*" | grep -v "(no branch)" | cut -d " " -f 2`
+
+if [ "$BRANCH" == "" ]; then
+  echo "You're not on a branch"
+  return
+fi
+
+echo "# git fetch origin"
+git fetch origin
+
+echo "# git fetch --tags"
+git fetch --tags
+
+echo "# git pull origin $BRANCH"
+git pull origin $BRANCH

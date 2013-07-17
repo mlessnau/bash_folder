@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
+echo "# git fetch origin"
 git fetch origin
+
+echo "# git fetch --tags"
 git fetch --tags
