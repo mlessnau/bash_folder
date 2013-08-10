@@ -41,14 +41,10 @@ alias t+='bundle exec rspec spec --fail-fast'
 alias t..='bundle exec guard'
 alias kill_guard="ps | egrep 'ruby.*guard' | grep -v egrep | sed 's/^\([0-9]*\).*/\1/g' | xargs kill"
 
-# git
-alias modified?="git ls-files . --modified"
-alias deleted?="git ls-files . --deleted"
-alias untracked?="git ls-files . --exclude-standard --others"
-
 # miscellaneous
 alias q="exit"
 alias cls="clear"
+alias tree="tree -C"
 
 # apt-get
 alias agu="sudo apt-get update"
@@ -59,4 +55,3 @@ alias agdu="sudo apt-get update && sudo apt-get dist-upgrade"
 # vim
 VIM_TMP_PATH=/tmp
 alias vim_cleanup="rm $VIM_TMP_PATH/*.swp &> /dev/null; rm $VIM_TMP_PATH/*.swo &> /dev/null; rm $VIM_TMP_PATH/*.*~v &> /dev/null; rm ~/.viminfo"
-
