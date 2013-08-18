@@ -55,3 +55,4 @@ alias agdu="sudo apt-get update && sudo apt-get dist-upgrade"
 # vim
 VIM_TMP_PATH=/tmp
 alias vim_cleanup="rm $VIM_TMP_PATH/*.swp &> /dev/null; rm $VIM_TMP_PATH/*.swo &> /dev/null; rm $VIM_TMP_PATH/*.*~v &> /dev/null; rm ~/.viminfo"
+alias v=vim
