@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+REMOTES=`git remote show`
+
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+REMOTE_BRANCHES_TO_DELETE=()
+
+for REMOTE in $REMOTES; do
+  echo "Fetching branches from remote '$REMOTE' ..."
+  git fetch $REMOTE
+
+  echo "Pruning remote tracking branches for '$REMOTE' ..."
+  git remote prune $REMOTE
+
+  REMOTE_BRANCHES=`git branch -r | sed "s/^ *//g" | egrep -v "^$REMOTE/(HEAD -> |master$|release$)" | egrep "^$REMOTE/" | sed "s/^$REMOTE\///g"`
+
+  for REMOTE_BRANCH in $REMOTE_BRANCHES; do
+    read -r -p "Delete remote branch '$REMOTE/$REMOTE_BRANCH'? [Y/n] " CONFIRMATION
+
+    if [[ ${CONFIRMATION,,} =~ ^\s*(y|)\s*$ ]]; then
+      REMOTE_BRANCHES_TO_DELETE+=("$REMOTE/$REMOTE_BRANCH")
+    fi
+  done
+done
+
+if [ ${#REMOTE_BRANCHES_TO_DELETE[@]} -gt 0 ]; then
+  echo "The following remote branches will be deleted:"
+
+  for REMOTE_BRANCH in $REMOTE_BRANCHES_TO_DELETE; do
+    echo "  $REMOTE_BRANCH"
+  done
+
+  read -r -p "Are you sure? [y/N] " CONFIRMATION
+
+  if [[ ${CONFIRMATION,,} =~ ^\s*(y)\s*$ ]]; then
+    for REMOTE_BRANCH in $REMOTE_BRANCHES_TO_DELETE; do
+      REMOTE=`echo "$REMOTE_BRANCH" | cut -d "/" -f 1`
+      BRANCH=`echo "$REMOTE_BRANCH" | cut -d "/" -f 2`
+
+      git push $REMOTE :$BRANCH
+    done
+  else
+    echo "CANCELLED"
+    exit 0
+  fi
+fi
+
+echo "DELETED ${#REMOTE_BRANCHES_TO_DELETE[@]} REMOTE BRANCH(ES)"
+
+exit 0

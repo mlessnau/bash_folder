@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+REMOTE="origin"
+TMP_FILE="/tmp/git-examine-tags.tmp"
+
+REMOTES=`git remote show`
+
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+if [ ${#REMOTES[@]} -gt 1 ]; then
+  echo "Warning: detected multiple remotes (performing for 'origin' only)"
+fi
+
+echo "Fetching branches from remote '$REMOTE' ..."
+git fetch $REMOTE
+
+echo "Fetching tags from remote '$REMOTE' ..."
+git fetch $REMOTE --tags
+
+LOCAL_TAGS=$(git show-ref --tags  | tr -s "\t" " " | sed "s/refs\/tags\///g" | sed "s/ /:/g")
+REMOTE_TAGS=$(git ls-remote --tags $REMOTE | tr -s "\t" " " | sed "s/refs\/tags\///g" | sed "s/ /:/g")
+
+echo "TAG|DATE|COMMIT|AUTHOR|REFS" > $TMP_FILE
+echo "------------|----------------|-------|------------------|----" >> $TMP_FILE
+
+for LOCAL_TAG in $LOCAL_TAGS; do
+  LOCAL_TAG_EXISTS_REMOTE=0
+
+  for REMOTE_TAG in $REMOTE_TAGS; do
+    if [ $LOCAL_TAG == $REMOTE_TAG ]; then
+      LOCAL_TAG_EXISTS_REMOTE=1
+      break
+    fi
+  done
+
+  TAG=`echo "$LOCAL_TAG" | cut -d ":" -f 2`
+
+  GIT_SHOW_CMD="git show $TAG -s --simplify-by-decoration"
+  TAG_DATE=`date "+%F %R" -d @$($GIT_SHOW_CMD --pretty="format:%ct")`
+  TAG_COMMIT_HASH=`$GIT_SHOW_CMD --pretty="format:%h"`
+  TAG_AUTHOR=`$GIT_SHOW_CMD --pretty="format:%cn"`
+  TAG_REF=`$GIT_SHOW_CMD --pretty="format:%d" | sed "s/^ *(\|)$//g"`
+
+  if [ "$TAG_REF" == "$TAG" ]; then
+    TAG_REF=""
+  else
+    TAG_REF=`echo $TAG_REF | sed "s/^$TAG, *//g"`
+    TAG_REF=`echo $TAG_REF | sed "s/, $TAG$//g"`
+    TAG_REF=`echo $TAG_REF | sed "s/, $TAG, /, /g"`
+  fi
+
+  if [ $LOCAL_TAG_EXISTS_REMOTE -eq 0 ]; then
+    TAG="! $TAG"
+  fi
+
+  echo "$TAG|$TAG_DATE|$TAG_COMMIT_HASH|$TAG_AUTHOR|$TAG_REF"
+done >> $TMP_FILE
+
+column -t -s"|" $TMP_FILE
+
+exit 0

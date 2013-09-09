@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+TMP_FILE="/tmp/git-list-tags.tmp"
+REMOTE="origin"
+
+REMOTES=`git remote show`
+
+if [ $? -ne 0 ]; then
+  exit 1
+fi
+
+if [ ${#REMOTES[@]} -gt 1 ]; then
+  echo "Warning: detected multiple remotes (performing for 'origin' only)"
+fi
+
+echo "Fetching branches from remote '$REMOTE' ..."
+git fetch $REMOTE
+
+echo "Fetching tags from remote '$REMOTE' ..."
+git fetch $REMOTE --tags
+
+LOCAL_TAGS=$(git show-ref --tags  | tr -s "\t" " " | sed "s/refs\/tags\///g" | sed "s/ /:/g")
+REMOTE_TAGS=$(git ls-remote --tags $REMOTE | tr -s "\t" " " | sed "s/refs\/tags\///g" | sed "s/ /:/g")
+
+for LOCAL_TAG in $LOCAL_TAGS; do
+  LOCAL_TAG_EXISTS_REMOTE=0
+
+  for REMOTE_TAG in $REMOTE_TAGS; do
+    if [ $LOCAL_TAG == $REMOTE_TAG ]; then
+      LOCAL_TAG_EXISTS_REMOTE=1
+      break
+    fi
+  done
+
+  TAG=`echo "$LOCAL_TAG" | cut -d ":" -f 2`
+
+  if [ $LOCAL_TAG_EXISTS_REMOTE -eq 0 ]; then
+    echo "! $TAG"
+  else
+    echo $TAG
+  fi
+done > $TMP_FILE
+
+if [ ${#LOCAL_TAGS[@]} -gt 0 ]; then
+  echo "Tags:"
+  column $TMP_FILE | sed "s/^/  /"
+
+  echo "Legend:"
+  echo "  <tag>    - tag exists local and remote"
+  echo "  ! <tag>  - tag exists local only"
+else
+  echo "Tags: none"
+fi
+
+exit 0
