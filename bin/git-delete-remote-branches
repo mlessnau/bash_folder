@@ -6,7 +6,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-REMOTE_BRANCHES_TO_DELETE=()
+declare -a REMOTE_BRANCHES_TO_DELETE
 
 for REMOTE in $REMOTES; do
   echo "Fetching branches from remote '$REMOTE' ..."
@@ -21,7 +21,7 @@ for REMOTE in $REMOTES; do
     read -r -p "Delete remote branch '$REMOTE/$REMOTE_BRANCH'? [Y/n] " CONFIRMATION
 
     if [[ ${CONFIRMATION,,} =~ ^\s*(y|)\s*$ ]]; then
-      REMOTE_BRANCHES_TO_DELETE+=("$REMOTE/$REMOTE_BRANCH")
+      REMOTE_BRANCHES_TO_DELETE[${#REMOTE_BRANCHES_TO_DELETE[@]}]="$REMOTE/$REMOTE_BRANCH"
     fi
   done
 done

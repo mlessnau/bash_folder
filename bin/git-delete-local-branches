@@ -11,7 +11,7 @@ echo "Currently on branch '$CURRENT_BRANCH' (cannot delete this one)"
 
 LOCAL_BRANCHES=`git branch | sed "s/^ *//g" | egrep -v "^\* "`
 
-for REMOTE in $REMOTES; do
+for REMOTE in ${REMOTES[@]}; do
   echo "Fetching branches from remote '$REMOTE' ..."
   git fetch $REMOTE
 
@@ -22,10 +22,10 @@ for REMOTE in $REMOTES; do
 
   LOCAL_BRANCHES_TO_DELETE=()
 
-  for LOCAL_BRANCH in $LOCAL_BRANCHES; do
+  for LOCAL_BRANCH in ${LOCAL_BRANCHES[@]}; do
     IS_VALID_TRACKING_BRANCH=0
 
-    for REMOTE_BRANCH in $REMOTE_BRANCHES; do
+    for REMOTE_BRANCH in ${REMOTE_BRANCHES[@]}; do
       if [ $LOCAL_BRANCH == $REMOTE_BRANCH ]; then
         IS_VALID_TRACKING_BRANCH=1
         break
@@ -33,7 +33,7 @@ for REMOTE in $REMOTES; do
     done
 
     if [ $IS_VALID_TRACKING_BRANCH -eq 0 ]; then
-      LOCAL_BRANCHES_TO_DELETE+=($LOCAL_BRANCH)
+      LOCAL_BRANCHES_TO_DELETE[${#LOCAL_BRANCHES_TO_DELETE[@]}]=$LOCAL_BRANCH
     fi
   done
 
@@ -42,25 +42,25 @@ done
 
 LOCAL_BRANCHES_TO_DELETE=()
 
-for LOCAL_BRANCH in $LOCAL_BRANCHES; do
+for LOCAL_BRANCH in ${LOCAL_BRANCHES[@]}; do
   read -r -p "Delete local branch '$LOCAL_BRANCH'? [Y/n] " CONFIRMATION
 
   if [[ ${CONFIRMATION,,} =~ ^\s*(y|)\s*$ ]]; then
-    LOCAL_BRANCHES_TO_DELETE+=($LOCAL_BRANCH)
+    LOCAL_BRANCHES_TO_DELETE[${#LOCAL_BRANCHES_TO_DELETE[@]}]=$LOCAL_BRANCH
   fi
 done
 
 if [ ${#LOCAL_BRANCHES_TO_DELETE[@]} -gt 0 ]; then
   echo "The following local branches will be deleted:"
 
-  for LOCAL_BRANCH in $LOCAL_BRANCHES_TO_DELETE; do
+  for LOCAL_BRANCH in ${LOCAL_BRANCHES_TO_DELETE[@]}; do
     echo "  $LOCAL_BRANCH"
   done
 
   read -r -p "Are you sure? [y/N] " CONFIRMATION
 
   if [[ ${CONFIRMATION,,} =~ ^\s*(y)\s*$ ]]; then
-    for LOCAL_BRANCH in $LOCAL_BRANCHES_TO_DELETE; do
+    for LOCAL_BRANCH in ${LOCAL_BRANCHES_TO_DELETE[@]}; do
       git branch -D $LOCAL_BRANCH
     done
   else
