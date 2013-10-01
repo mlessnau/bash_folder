@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+git log --tags --simplify-by-decoration --date=iso --pretty="format:%C(yellow)%h%Creset %cd%Cred%d%Creset %Cblue[%cn]%Creset" --decorate=no --no-merges release
+# git log --tags --simplify-by-decoration --date=iso --pretty="format:%cd  %h  %cn  %x09%d" --no-merges release | sort
