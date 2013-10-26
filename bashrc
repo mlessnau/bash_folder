@@ -15,7 +15,19 @@ shopt -s checkwinsize   # check window size after each command
 shopt -s dotglob        # make asterisk (*) match hidden files too
 
 # bash colors
-export TERM=screen-256color # works best with vim/tmux in 256 colors mode
+if [ $TERM = "xterm" ]; then
+  export TERM=xterm-256color
+elif [ $TERM = "screen" ]; then
+  export TERM=screen-256color
+elif [ $TERM = "putty" ]; then
+  export TERM=putty-256color
+elif [ $TERM = "rxvt" ]; then
+  export TERM=rxvt-256color
+elif [ $TERM = "konsole" ]; then
+  export TERM=konsole-256color
+elif [ $TERM = "gnome" ]; then
+  export TERM=gnome-256color
+fi
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
