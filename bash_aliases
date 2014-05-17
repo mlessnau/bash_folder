@@ -28,31 +28,13 @@ alias be='bundle exec'
 alias rake='bundle exec rake'
 alias guard='bundle exec guard'
 alias rspec='bundle exec rspec'
-alias db='RAILS_ENV=test bundle exec rake db:drop db:create db:migrate db:seed'
-alias db_safe='RAILS_ENV=test bundle exec rake db:drop db:create db:migrate && RAILS_ENV=test bundle exec rake db:seed'
-alias db!='bundle exec rake db:drop db:create db:migrate db:seed'
-alias db_safe!='bundle exec rake db:drop db:create db:migrate && bundle exec rake db:seed'
-alias c="rails c test"
-alias c!="rails c"
-alias s='rails s RAILS_ENV=test'
-alias s!='rails s'
-alias t='bundle exec rspec spec'
-alias t+='bundle exec rspec spec --fail-fast'
-alias t..='bundle exec guard'
-alias kill_guard="ps | egrep 'ruby.*guard' | grep -v egrep | sed 's/^\([0-9]*\).*/\1/g' | xargs kill"
 
 # miscellaneous
-alias q="exit"
-alias cls="clear"
 alias tree="tree -C"
 
 # apt-get
-alias agu="sudo apt-get update"
-alias agi="sudo apt-get install"
-alias agui="sudo apt-get update && sudo apt-get install"
 alias agdu="sudo apt-get update && sudo apt-get dist-upgrade"
 
 # vim
 VIM_TMP_PATH=/tmp
 alias vim_cleanup="rm $VIM_TMP_PATH/*.swp &> /dev/null; rm $VIM_TMP_PATH/*.swo &> /dev/null; rm $VIM_TMP_PATH/*.*~v &> /dev/null; rm ~/.viminfo"
-alias v=vim
