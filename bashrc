@@ -37,11 +37,6 @@ if [ -f ~/.bash/bash_aliases ]; then
   . ~/.bash/bash_aliases
 fi
 
-# functions
-if [ -f ~/.bash/bash_functions ]; then
-  . ~/.bash/bash_functions
-fi
-
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -57,6 +52,11 @@ source ~/.bash/bin/git/git-completion.bash
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWUNTRACKEDFILES=1
 export PS1="\[\e[1;30m\]\A \w\[\e[m \]\$($(cat ~/.bash/bin/git/git-ps1/git-ps1.sh))"
+
+# functions
+if [ -f ~/.bash/bash_functions ]; then
+  . ~/.bash/bash_functions
+fi
 
 PATH="$HOME/.bash/bin:$PATH"
 
